@@ -24,7 +24,7 @@ export async function getMarketplaceContract(): Promise<MarketplaceContext> {
 
   // 4. Figure out which network we’re on, and grab the deployed network info
   const networkId = await web3.eth.net.getId();
-  const deployedNetwork = (Marketplace.networks as any)[networkId];
+  const deployedNetwork = (Marketplace.networks as any)[networkId.toString()];
   if (!deployedNetwork) {
     throw new Error(
       `Marketplace contract not deployed to network ID ${networkId}. ` +
