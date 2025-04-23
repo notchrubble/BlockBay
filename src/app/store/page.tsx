@@ -23,6 +23,10 @@ const ProductsPage = () => {
     initializeProducts(); // change to initializeProducts(true) to force refresh the local storage cache for the products
     loadProducts();
     initWeb3();
+
+    const handleStorageUpdate = () => loadProducts();
+    window.addEventListener("products-updated", handleStorageUpdate);
+    return () => window.removeEventListener("products-updated", handleStorageUpdate);
   }, []);
 
   const loadProducts = () => {

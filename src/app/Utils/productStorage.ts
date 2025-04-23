@@ -71,69 +71,45 @@ const initialProducts: ProductItem[] = [
   },
 ];
 
-export const initializeProducts = (forceReset = false): void => {
-  if (typeof window !== "undefined") {
-    if (forceReset || !localStorage.getItem(PRODUCTS_STORAGE_KEY)) {
-      localStorage.setItem(
-        PRODUCTS_STORAGE_KEY,
-        JSON.stringify(initialProducts)
-      );
-    }
+export function initializeProducts(forceReset: boolean = false): void {
+  const existing = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+  if (!existing || forceReset) {
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(initialProducts));
   }
-};
+}
 
-export const getProducts = (): ProductItem[] => {
-  if (typeof window === "undefined") return [];
+export function getProducts(): ProductItem[] {
+  const data = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+  return data ? JSON.parse(data) : [];
+}
 
-  const productsJson = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-  if (!productsJson) {
-    initializeProducts();
-    return initialProducts;
-  }
+export function addProduct(product: Omit<ProductItem, "id">, id: string): void {
+  const stored = getProducts();
+  const newProduct: ProductItem = { ...product, id };
+  const updated = [...stored, newProduct];
 
-  return JSON.parse(productsJson);
-};
+  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updated));
 
-export const addProduct = (product: Omit<ProductItem, "id">): ProductItem => {
-  const products = getProducts();
-  const newProduct = {
-    ...product,
-    id: Date.now().toString(), // Generate a simple unique ID
-  };
+  // ✅ Notify store page that new product was added
+  window.dispatchEvent(new Event("products-updated"));
+}
 
-  products.push(newProduct);
-  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+export function removeProduct(id: string): boolean {
+  const stored = getProducts();
+  const filtered = stored.filter((p) => p.id !== id);
 
-  return newProduct;
-};
+  if (stored.length === filtered.length) return false;
 
-export const removeProduct = (productId: string): boolean => {
-  const products = getProducts();
-  const filteredProducts = products.filter((p) => p.id !== productId);
-
-  if (filteredProducts.length === products.length) {
-    return false; // Product not found
-  }
-
-  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(filteredProducts));
+  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(filtered));
   return true;
-};
+}
 
-export const updateProduct = (product: ProductItem): boolean => {
-  const products = getProducts();
-  const index = products.findIndex((p) => p.id === product.id);
+export function updateProduct(updatedProduct: ProductItem): void {
+  const stored = getProducts();
+  const index = stored.findIndex((p) => p.id === updatedProduct.id);
 
-  if (index === -1) {
-    return false; // Product not found
+  if (index !== -1) {
+    stored[index] = updatedProduct;
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(stored));
   }
-
-  products[index] = product;
-  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
-  return true;
-};
-
-export const getProductById = (productId: string): ProductItem | null => {
-  const products = getProducts();
-  const product = products.find((p) => p.id === productId);
-  return product || null;
-};
+}
