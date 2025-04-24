@@ -33,6 +33,10 @@ const ProductsPage: React.FC = () => {
     initializeProducts();
     loadProducts();
     initWeb3();
+
+    const handleStorageUpdate = () => loadProducts();
+    window.addEventListener("products-updated", handleStorageUpdate);
+    return () => window.removeEventListener("products-updated", handleStorageUpdate);
   }, []);
 
   const loadProducts = () => {
