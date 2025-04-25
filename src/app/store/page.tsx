@@ -29,6 +29,10 @@ const ProductsPage: React.FC = () => {
     zip: "",
   });
 
+  // Bidding form state
+  const [showBidForm, setShowBidForm] = useState(false);
+  const [bidAmount, setBidAmount] = useState("");
+
   useEffect(() => {
     initializeProducts();
     loadProducts();
@@ -38,6 +42,11 @@ const ProductsPage: React.FC = () => {
     window.addEventListener("products-updated", handleStorageUpdate);
     return () => window.removeEventListener("products-updated", handleStorageUpdate);
   }, []);
+
+  // Load products based on filter
+  useEffect(() => {
+    loadProducts();
+  }, [filter]);
 
   const loadProducts = () => {
     const allProducts = getProducts();
@@ -103,6 +112,12 @@ const ProductsPage: React.FC = () => {
     setShowShippingForm(true);
   };
 
+  const handleBidClick = (product: ProductItem) => {
+    setSelectedProduct(product);
+    setBidAmount(web3?.utils.fromWei(product.price, "ether") || "");
+    setShowBidForm(true);
+  };
+
   const handleShippingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setShippingInfo((prev) => ({ ...prev, [name]: value }));
@@ -122,20 +137,89 @@ const ProductsPage: React.FC = () => {
     setShippingInfo({ name: "", address1: "", address2: "", city: "", zip: "" });
   };
 
-  const handleBidProduct = async (product: ProductItem, amount: string) => {
-    // existing bid logic...
+  const handleSubmitBid = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!selectedProduct || !web3 || !account) {
+      alert("Please connect your wallet first!");
+      return;
+    }
+
+    try {
+      if (!bidAmount || parseFloat(bidAmount) <= 0) {
+        alert("Please enter a valid bid amount");
+        return;
+      }
+
+      const bidAmountWei = web3.utils.toWei(bidAmount, "ether");
+      
+      // Check if bid is higher than current price
+      if (BigInt(bidAmountWei) <= BigInt(selectedProduct.price)) {
+        alert("Your bid must be higher than the current price!");
+        return;
+      }
+      
+      console.log(`Bidding on product: ${selectedProduct.name} with ${bidAmount} ETH (${bidAmountWei} wei)`);
+      
+      const confirmation = confirm(
+        `This will place a bid of ${bidAmount} ETH on ${selectedProduct.name}. Continue?`
+      );
+      
+      if (confirmation) {
+        // In a real implementation, you would call your smart contract's placeBid function here
+        // For now, we'll simulate it with a direct transaction and update localStorage
+        
+        // Send transaction using MetaMask (this is a placeholder - in real app would call contract)
+        const transactionObj = {
+          from: account,
+          to: selectedProduct.seller, 
+          value: bidAmountWei,
+        };
+        
+        const receipt = await web3.eth.sendTransaction(transactionObj);
+        console.log("Bid transaction successful:", receipt);
+        
+        // Update the product price to reflect the new bid
+        const updatedProduct = {
+          ...selectedProduct,
+          price: bidAmountWei,
+          lastBidder: account,
+        };
+        
+        updateProduct(updatedProduct);
+        alert(`Successfully placed bid of ${bidAmount} ETH on ${selectedProduct.name}!`);
+        loadProducts();
+        
+        // Close the bid form
+        setShowBidForm(false);
+        setSelectedProduct(null);
+        setBidAmount("");
+      }
+    } catch (error) {
+      console.error("Error placing bid:", error);
+      alert("Error placing bid. See console for details.");
+    }
+  };
+
+  const handleCloseBidForm = () => {
+    setShowBidForm(false);
+    setSelectedProduct(null);
+    setBidAmount("");
   };
 
   const connectWallet = async () => {
     if (typeof window !== "undefined" && window.ethereum) {
-      try { await window.ethereum.request({ method: "eth_requestAccounts" }); initWeb3(); }
-      catch (error) { console.error("Connect wallet error:", error); }
+      try { 
+        await window.ethereum.request({ method: "eth_requestAccounts" }); 
+        initWeb3(); 
+      }
+      catch (error) { 
+        console.error("Connect wallet error:", error); 
+      }
     } else alert("MetaMask is not installed.");
   };
 
   const handleFilterChange = (newFilter: "all" | "fixed" | "auction") => {
     setFilter(newFilter);
-    loadProducts();
   };
 
   return (
@@ -169,7 +253,11 @@ const ProductsPage: React.FC = () => {
       </div>
 
       {/* Product Grid */}
-      <ProductGrid products={products} onBuyProduct={handleBuyClick} onBidProduct={handleBidProduct} />
+      <ProductGrid 
+        products={products} 
+        onBuyProduct={handleBuyClick} 
+        onBidProduct={handleBidClick} 
+      />
 
       {/* Shipping Modal */}
       {showShippingForm && selectedProduct && (
@@ -243,6 +331,41 @@ const ProductsPage: React.FC = () => {
                 </button>
                 <button type="submit" className="btn btn-primary">
                   Submit & Buy
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bidding Modal */}
+      {showBidForm && selectedProduct && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Place a Bid</h2>
+            <p className="mb-3">Current price: {web3?.utils.fromWei(selectedProduct.price, "ether")} ETH</p>
+            
+            <form onSubmit={handleSubmitBid}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Your Bid (ETH)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={bidAmount}
+                  onChange={(e) => setBidAmount(e.target.value)}
+                  required
+                  className="input input-bordered w-full"
+                  placeholder="Enter bid amount in ETH"
+                  min={parseFloat(web3?.utils.fromWei(selectedProduct.price, "ether") || "0") + 0.01}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <button type="button" onClick={handleCloseBidForm} className="btn btn-outline">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Place Bid
                 </button>
               </div>
             </form>

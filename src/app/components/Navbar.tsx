@@ -28,6 +28,9 @@ const Navbar: React.FC = () => {
           <li>
             <Link href="/store">Marketplace</Link>
           </li>
+          <li>
+            <Link href="/list">List an Item</Link>
+          </li>
         </ul>
       </div>
 
