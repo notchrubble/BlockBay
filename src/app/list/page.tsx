@@ -66,6 +66,7 @@ export default function ListItemPage() {
             price: bidInWei,
             seller,
             imageUrl: imageData,
+            endTime,
             isAuction: true,
           }, id);
 
@@ -152,6 +153,7 @@ export default function ListItemPage() {
               onChange={(e) => setStartingBid(e.target.value)}
               className="input input-bordered w-full"
             />
+            <label className="label-text text-sm">Auction End Date/Time:</label>
             <input
               type="datetime-local"
               value={endDate}

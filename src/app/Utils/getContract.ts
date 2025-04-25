@@ -1,4 +1,3 @@
-
 import Web3 from "web3";
 import Marketplace from "../../../build/contracts/Marketplace.json";
 
