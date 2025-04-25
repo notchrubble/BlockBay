@@ -174,7 +174,7 @@ const ProductsPage: React.FC = () => {
       {/* Shipping Modal */}
       {showShippingForm && selectedProduct && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div data-theme="light"className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Shipping Information</h2>
             <form onSubmit={handleSubmitShipping}>
               <div className="mb-3">
