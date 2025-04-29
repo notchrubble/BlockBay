@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 import { formatEther } from "ethers";
 
 export interface ProductItem {
@@ -58,7 +57,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onBuy, onBid }) => {
       </figure>
       <div className="card-body">
         <h2 className="card-title text-lg">{product.name}</h2>
-        <p className="text-sm text-gray-600 line-clamp-2">
+        <p className="text-sm text-gray-400 line-clamp-2">
           {product.description}
         </p>
         <div className="flex items-center mt-2">

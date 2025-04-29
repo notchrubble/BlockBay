@@ -90,7 +90,6 @@ export function addProduct(product: Omit<ProductItem, "id">, id: string): void {
 
   localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updated));
 
-  // ✅ Notify store page that new product was added
   window.dispatchEvent(new Event("products-updated"));
 }
 

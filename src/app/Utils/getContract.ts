@@ -32,7 +32,7 @@ const getMarketplaceContract = async () => {
     deployedNetwork.address
   );
 
-  return { web3, contract, accounts }; // ✅ Make sure web3 is returned
+  return { web3, contract, accounts };
 };
 
 export { getMarketplaceContract };

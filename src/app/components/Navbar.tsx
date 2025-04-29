@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Menu, User } from "lucide-react";
+import { Menu } from "lucide-react";
 
 const Navbar: React.FC = () => {
   return (
@@ -35,7 +35,6 @@ const Navbar: React.FC = () => {
       </div>
 
       <div className="navbar-end">
-        <User />
       </div>
     </div>
   );
