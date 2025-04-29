@@ -165,10 +165,6 @@ const ProductsPage: React.FC = () => {
       );
       
       if (confirmation) {
-        // In a real implementation, you would call your smart contract's placeBid function here
-        // For now, we'll simulate it with a direct transaction and update localStorage
-        
-        // Send transaction using MetaMask (this is a placeholder - in real app would call contract)
         const transactionObj = {
           from: account,
           to: selectedProduct.seller, 
@@ -262,7 +258,7 @@ const ProductsPage: React.FC = () => {
       {/* Shipping Modal */}
       {showShippingForm && selectedProduct && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-base-100 rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Shipping Information</h2>
             <form onSubmit={handleSubmitShipping}>
               <div className="mb-3">
@@ -341,7 +337,7 @@ const ProductsPage: React.FC = () => {
       {/* Bidding Modal */}
       {showBidForm && selectedProduct && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-base-100 rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Place a Bid</h2>
             <p className="mb-3">Current price: {web3?.utils.fromWei(selectedProduct.price, "ether")} ETH</p>
             

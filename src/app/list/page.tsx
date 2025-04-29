@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { getMarketplaceContract } from "../Utils/getContract";
 import { v4 as uuidv4 } from "uuid";
-import { addProduct } from "../Utils/productStorage"; // ✅ corrected path
+import { addProduct } from "../Utils/productStorage";
 
 
 export default function ListItemPage() {
